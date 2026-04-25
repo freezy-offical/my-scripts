@@ -1,5 +1,5 @@
 return {
-    Library = require("./linorialibfork/Library"),
-    SaveManager = require("./linorialibfork/addons/SaveManager"),
-    ThemeManager = require("./linorialibfork/addons/ThemeManager")
+    Library = require("./Library"),
+    SaveManager = require("./addons/SaveManager"),
+    ThemeManager = require("./addons/ThemeManager")
 }
