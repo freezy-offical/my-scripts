@@ -1,9 +1,21 @@
 local function get(path)
-    return game:HttpGet("https://raw.githubusercontent.com/freezy-offical/my-scripts/main/" .. path)
+    local success, result = pcall(function()
+        return game:HttpGet("https://raw.githubusercontent.com/freezy-offical/my-scripts/main/" .. path)
+    end)
+    if not success then return nil end
+    return result
 end
 
 local function req(path)
-    return loadstring(get(path))()
+    local source = get(path)
+    if not source or source:find("404: Not Found") then 
+        error("\n[Loader Error] File not found on GitHub: " .. path .. "\nMake sure you have pushed your files to the 'main' branch!") 
+    end
+    
+    local fn, err = loadstring(source)
+    if not fn then error("\n[Loader Error] Syntax error in " .. path .. ": " .. err) end
+    
+    return fn()
 end
 
 local aimbot = req("library/aimbot.luau")
