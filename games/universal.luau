@@ -1,6 +1,8 @@
 local function get(path)
     local success, result = pcall(function()
-        return game:HttpGet("https://raw.githubusercontent.com/freezy-offical/my-scripts/main/" .. path)
+        -- Adding a random query string to bypass executor caching
+        local cacheBuster = "?t=" .. tostring(math.random(1, 100000))
+        return game:HttpGet("https://raw.githubusercontent.com/freezy-offical/my-scripts/main/" .. path .. cacheBuster)
     end)
     if not success then return nil end
     return result

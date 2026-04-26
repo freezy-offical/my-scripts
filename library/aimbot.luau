@@ -273,9 +273,10 @@ runService.RenderStepped:Connect(function()
 		local currentTarget = getClosestTarget()
 		local isLocked = (isAiming or sticky.enabled) and currentTarget ~= nil
 
-		local triggerActive = aimbot.triggerbot.enabled
-		if triggerActive and aimbot.triggerbot.keybind ~= nil then
-			triggerActive = userInputService:IsKeyDown(aimbot.triggerbot.keybind) or userInputService:IsMouseButtonPressed(aimbot.triggerbot.keybind)
+		local triggerbot = aimbot.triggerbot
+		local triggerActive = triggerbot and triggerbot.enabled
+		if triggerActive and triggerbot.keybind ~= nil then
+			triggerActive = userInputService:IsKeyDown(triggerbot.keybind) or userInputService:IsMouseButtonPressed(triggerbot.keybind)
 		end
 
 		if triggerActive and not firing then
@@ -289,7 +290,7 @@ runService.RenderStepped:Connect(function()
 						task.spawn(function()
 							firing = true
 							mouse1press()
-							task.wait(aimbot.triggerbot.delay)
+							task.wait(triggerbot.delay or 0.01)
 							mouse1release()
 							firing = false
 						end)
@@ -331,8 +332,8 @@ runService.RenderStepped:Connect(function()
 			outline.Visible = false
 		end
 
-		local stickyActive = sticky.enabled
-		if sticky.enabled and sticky.keybind ~= nil then
+		local stickyActive = sticky and sticky.enabled
+		if sticky and sticky.enabled and sticky.keybind ~= nil then
 			stickyActive = userInputService:IsKeyDown(sticky.keybind) or userInputService:IsMouseButtonPressed(sticky.keybind)
 		end
 
