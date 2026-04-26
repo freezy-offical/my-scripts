@@ -55,7 +55,7 @@ MainGroupBox:AddLabel("Keybind"):AddKeyPicker("AimbotKeybind", {
     Mode = "Hold",
     Text = "Aimbot Keybind",
     NoUI = false,
-    Callback = function(Value) aimbot.keybind = Value end
+    ChangedCallback = function(Value) aimbot.keybind = Value end
 })
 
 MainGroupBox:AddDropdown("TargetPart", {
@@ -141,7 +141,7 @@ TriggerGroupBox:AddLabel("Keybind"):AddKeyPicker("TriggerbotKeybind", {
     Mode = "Hold",
     Text = "Triggerbot Keybind",
     NoUI = false,
-    Callback = function(Value) aimbot.triggerbot.keybind = Value end
+    ChangedCallback = function(Value) aimbot.triggerbot.keybind = Value end
 })
 
 local ChecksGroupBox = Tabs.Aimbot:AddRightGroupbox("Checks")
@@ -302,7 +302,7 @@ SaveManager:SetFolder("UniversalAimbot/configs")
 
 SaveManager:BuildConfigSection(Tabs["UI Settings"])
 
-Tabs["UI Settings"]:AddLeftGroupbox("Menu"):AddLabel("Menu bind"):AddKeyPicker("MenuKeybind", { Default = "RightControl", NoUI = true, Text = "Menu bind", Callback = function(Value) Library.ToggleKeybind = Value end })
+Tabs["UI Settings"]:AddLeftGroupbox("Menu"):AddLabel("Menu bind"):AddKeyPicker("MenuKeybind", { Default = "RightControl", NoUI = true, Text = "Menu bind", ChangedCallback = function(Value) Library.ToggleKeybind = Value end })
 
 ThemeManager:ApplyToTab(Tabs["UI Settings"])
 
