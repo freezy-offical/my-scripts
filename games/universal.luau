@@ -1,9 +1,7 @@
 local function get(path)
-    local success, result = pcall(function()
-        -- Adding a random query string to bypass executor caching
-        local cacheBuster = "?t=" .. tostring(math.random(1, 100000))
-        return game:HttpGet("https://raw.githubusercontent.com/freezy-offical/my-scripts/main/" .. path .. cacheBuster)
-    end)
+    -- Using a timestamp-based cache buster is standard for GitHub raw files to ensure you get the latest version
+    local url = "https://raw.githubusercontent.com/freezy-offical/my-scripts/main/" .. path .. "?t=" .. os.time()
+    local success, result = pcall(function() return game:HttpGet(url) end)
     if not success then return nil end
     return result
 end
@@ -11,13 +9,14 @@ end
 local function req(path)
     local source = get(path)
     if not source or source:find("404: Not Found") then 
-        error("\n[Loader Error] File not found on GitHub: " .. path) 
+        error("\n[Loader Error] Could not download: " .. path .. "\nMake sure you pushed the file to GitHub!") 
     end
     local fn, err = loadstring(source)
     if not fn then error("\n[Loader Error] Syntax error in " .. path .. ": " .. err) end
     return fn()
 end
 
+--// Load Modules
 local aimbot = req("library/aimbot.luau")
 local Library = req("library/UI/Library.luau")
 local ThemeManager = req("library/UI/addons/ThemeManager.luau")
