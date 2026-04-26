@@ -96,6 +96,11 @@ local aimbot = {
 			y = 5
 		}
 	},
+	triggerbot = {
+		enabled = false,
+		delay = 0.01,
+		keybind = nil
+	},
 	customParts = {},
 	whitelist = {},
 	blacklist = {}
