@@ -27,23 +27,10 @@ end
 local Vector2new, CFramenew, CFramefromOrientation, Color3fromRGB, Color3fromHSV = Vector2.new, CFrame.new, CFrame.fromOrientation, Color3.fromRGB, Color3.fromHSV
 local Drawingnew = Drawing.new
 
-local GameMetatable = getrawmetatable and getrawmetatable(game) or {
-	__index = LPH_NO_VIRTUALIZE(function(self, Index) return self[Index] end),
-	__newindex = LPH_NO_VIRTUALIZE(function(self, Index, Value) self[Index] = Value end)
-}
-
-local __index = GameMetatable.__index
-local __newindex = GameMetatable.__newindex
-
-local _GetService = __index(game, "GetService")
-local GetService = function(Service)
-	return cloneref(_GetService(game, Service))
-end
-
-local players = GetService("Players")
-local runService = GetService("RunService")
-local userInputService = GetService("UserInputService")
-local localPlayer = __index(players, "LocalPlayer")
+local players = game:GetService("Players")
+local runService = game:GetService("RunService")
+local userInputService = game:GetService("UserInputService")
+local localPlayer = players.LocalPlayer
 
 local aimbot = {
 	enabled = false,
@@ -120,7 +107,7 @@ local isAiming = false
 local firing = false
 local lastTarget = nil
 local targetLockTime = 0
-local originalSensitivity = __index(userInputService, "MouseDeltaSensitivity")
+local originalSensitivity = .userInputService, "MouseDeltaSensitivity")
 
 local rayParams = RaycastParams.new()
 rayParams.FilterType = Enum.RaycastFilterType.Exclude
@@ -135,8 +122,8 @@ local function lerpAngle(current, target, alpha)
 end
 
 local function restoreSensitivity()
-	if __index(userInputService, "MouseDeltaSensitivity") == 0 then
-		__newindex(userInputService, "MouseDeltaSensitivity", originalSensitivity)
+	if .userInputService, "MouseDeltaSensitivity") == 0 then
+		=userInputService, "MouseDeltaSensitivity", originalSensitivity)
 	end
 end
 
@@ -145,15 +132,15 @@ local function applySmoothAim(camera, targetCFrame, smX, smY, strength)
 	local sy = mathclamp(smY, 0, 10)
 	local alphaX = (sx == 0 and 1 or (1 / (sx + 1))) * (strength or 1)
 	local alphaY = (sy == 0 and 1 or (1 / (sy + 1))) * (strength or 1)
-	local currentX, currentY, _ = __index(camera, "CFrame"):ToOrientation()
+	local currentX, currentY, _ = .camera, "CFrame"):ToOrientation()
 	local targetX, targetY, targetZ = targetCFrame:ToOrientation()
 	local newX = lerpAngle(currentX, targetX, alphaX)
 	local newY = lerpAngle(currentY, targetY, alphaY)
-	__newindex(camera, "CFrame", CFramenew(__index(camera, "CFrame").Position) * CFramefromOrientation(newX, newY, targetZ))
+	=camera, "CFrame", CFramenew(.camera, "CFrame").Position) * CFramefromOrientation(newX, newY, targetZ))
 end
 
 local function isCharacterInvisible(character)
-	for _, obj in next, __index(character, "GetDescendants")(character) do
+	for _, obj in next, .character, "GetDescendants")(character) do
 		if obj:IsA("BasePart") or obj:IsA("Decal") or obj:IsA("Texture") then
 			if obj.Transparency < 0.99 then
 				return false
@@ -166,22 +153,22 @@ end
 local function isInList(list, player, character)
 	for _, entry in next, list do
 		if entry == player or entry == character then return true end
-		if type(entry) == "string" and player and __index(player, "Name") == entry then return true end
+		if type(entry) == "string" and player and .player, "Name") == entry then return true end
 	end
 	return false
 end
 
 local function isVisible(target)
 	local success, result = pcall(function()
-		local character = __index(localPlayer, "Character")
-		local camera = __index(workspace, "CurrentCamera")
-		if not (character and __index(character, "FindFirstChild")(character, "Head")) then return false end
-		local origin = __index(character, "Head").Position
-		local direction = __index(target, "Position") - origin
+		local character = .localPlayer, "Character")
+		local camera = .workspace, "CurrentCamera")
+		if not (character and .character, "FindFirstChild")(character, "Head")) then return false end
+		local origin = .character, "Head").Position
+		local direction = .target, "Position") - origin
 		local filter = {character, camera}
 		for _ = 1, 5 do
 			rayParams.FilterDescendantsInstances = filter
-			local res = __index(workspace, "Raycast")(workspace, origin, direction, rayParams)
+			local res = .workspace, "Raycast")(workspace, origin, direction, rayParams)
 			if not res then return true end
 			local part = res.Instance
 			if part:IsDescendantOf(target.Parent) then
@@ -200,31 +187,31 @@ end
 
 local function isValidTarget(character, checkVisibility, specificPart)
 	local success, result, hit = pcall(function()
-		local camera = __index(workspace, "CurrentCamera")
-		if not character or character == __index(localPlayer, "Character") then return false end
-		local targetPart = specificPart or __index(character, "FindFirstChild")(character, aimbot.targetPart) or __index(character, "FindFirstChild")(character, "Head")
-		local humanoid = __index(character, "FindFirstChildOfClass")(character, "Humanoid")
+		local camera = .workspace, "CurrentCamera")
+		if not character or character == .localPlayer, "Character") then return false end
+		local targetPart = specificPart or .character, "FindFirstChild")(character, aimbot.targetPart) or .character, "FindFirstChild")(character, "Head")
+		local humanoid = .character, "FindFirstChildOfClass")(character, "Humanoid")
 		if not (targetPart and humanoid) then return false end
-		if aimbot.checks.healthCheck and __index(humanoid, "Health") <= 0 then return false end
+		if aimbot.checks.healthCheck and .humanoid, "Health") <= 0 then return false end
 		if aimbot.checks.invisibleCheck and isCharacterInvisible(character) then return false end
-		local player = __index(players, "GetPlayerFromCharacter")(players, character)
+		local player = .players, "GetPlayerFromCharacter")(players, character)
 		if #aimbot.whitelist > 0 and not isInList(aimbot.whitelist, player, character) then return false end
 		if isInList(aimbot.blacklist, player, character) then return false end
 		if player then
 			local teamCheck = aimbot.checks.teamCheck
 			if teamCheck.enabled then
 				local option = teamCheck.type == "Team" and "Team" or "TeamColor"
-				if __index(player, option) == __index(localPlayer, option) then return false end
+				if .player, option) == .localPlayer, option) then return false end
 			end
 		end
 		local distanceCheck = aimbot.checks.distance
 		if distanceCheck.enabled then
-			local origin = __index(camera, "CFrame").Position
-			local char = __index(localPlayer, "Character")
-			if distanceCheck.type == "Character" and char and __index(char, "FindFirstChild")(char, "HumanoidRootPart") then
-				origin = __index(char, "HumanoidRootPart").Position
+			local origin = .camera, "CFrame").Position
+			local char = .localPlayer, "Character")
+			if distanceCheck.type == "Character" and char and .char, "FindFirstChild")(char, "HumanoidRootPart") then
+				origin = .char, "HumanoidRootPart").Position
 			end
-			if (__index(targetPart, "Position") - origin).Magnitude > distanceCheck.maxDistance then return false end
+			if (.targetPart, "Position") - origin).Magnitude > distanceCheck.maxDistance then return false end
 		end
 		if checkVisibility and aimbot.checks.visibleCheck and not isVisible(targetPart) then return false end
 		return true, targetPart
@@ -235,18 +222,18 @@ end
 
 local function getClosestTarget()
 	local success, result = pcall(function()
-		local camera = __index(workspace, "CurrentCamera")
+		local camera = .workspace, "CurrentCamera")
 		local targetPart = nil
 		local shortestDistance = mathhuge
-		local fovPos = __index(userInputService, "GetMouseLocation")(userInputService)
-		if aimbot.fov.position == "Center" then fovPos = __index(camera, "ViewportSize") / 2 end
+		local fovPos = .userInputService, "GetMouseLocation")(userInputService)
+		if aimbot.fov.position == "Center" then fovPos = .camera, "ViewportSize") / 2 end
 		local fovEnabled = aimbot.fov.enabled
 		local fovRadius = mathclamp(aimbot.fov.radius, 1, 500)
-		for _, descendant in next, __index(workspace, "GetChildren")(workspace) do
+		for _, descendant in next, .workspace, "GetChildren")(workspace) do
 			if descendant:IsA("Model") then
 				local isValid, hitPart = isValidTarget(descendant, true)
 				if isValid then
-					local screenPoint, onScreen = __index(camera, "WorldToViewportPoint")(camera, __index(hitPart, "Position"))
+					local screenPoint, onScreen = .camera, "WorldToViewportPoint")(camera, .hitPart, "Position"))
 					if onScreen then
 						local distance = (Vector2new(screenPoint.X, screenPoint.Y) - fovPos).Magnitude
 						if fovEnabled and distance > fovRadius then continue end
@@ -259,9 +246,9 @@ local function getClosestTarget()
 			end
 		end
 		for _, part in next, aimbot.customParts do
-			local ok, partPos = pcall(function() return __index(part, "Position") end)
+			local ok, partPos = pcall(function() return .part, "Position") end)
 			if not ok or not partPos then continue end
-			local screenPoint, onScreen = __index(camera, "WorldToViewportPoint")(camera, partPos)
+			local screenPoint, onScreen = .camera, "WorldToViewportPoint")(camera, partPos)
 			if onScreen then
 				local distance = (Vector2new(screenPoint.X, screenPoint.Y) - fovPos).Magnitude
 				if fovEnabled and distance > fovRadius then continue end
@@ -279,7 +266,7 @@ end
 
 runService.RenderStepped:Connect(function()
 	local success, err = pcall(function()
-		local camera = __index(workspace, "CurrentCamera")
+		local camera = .workspace, "CurrentCamera")
 		local sticky = aimbot.stickyAim
 		local fov = aimbot.fov
 
@@ -292,13 +279,13 @@ runService.RenderStepped:Connect(function()
 		end
 
 		if triggerActive and not firing then
-			local mouse = __index(localPlayer, "GetMouse")(localPlayer)
-			local target = __index(mouse, "Target")
+			local mouse = .localPlayer, "GetMouse")(localPlayer)
+			local target = .mouse, "Target")
 			if target then
-				local character = __index(target, "FindFirstAncestorOfClass")(target, "Model")
-				if character and character ~= __index(localPlayer, "Character") then
-					local humanoid = __index(character, "FindFirstChildOfClass")(character, "Humanoid")
-					if humanoid and __index(humanoid, "Health") > 0 then
+				local character = .target, "FindFirstAncestorOfClass")(target, "Model")
+				if character and character ~= .localPlayer, "Character") then
+					local humanoid = .character, "FindFirstChildOfClass")(character, "Humanoid")
+					if humanoid and .humanoid, "Health") > 0 then
 						task.spawn(function()
 							firing = true
 							mouse1press()
@@ -312,8 +299,8 @@ runService.RenderStepped:Connect(function()
 		end
 
 		if fov.showFov then
-			local fovPos = __index(userInputService, "GetMouseLocation")(userInputService)
-			if fov.position == "Center" then fovPos = __index(camera, "ViewportSize") / 2 end
+			local fovPos = .userInputService, "GetMouseLocation")(userInputService)
+			if fov.position == "Center" then fovPos = .camera, "ViewportSize") / 2 end
 			local fovColor = fov.rainbow and Color3fromHSV(osclock() % 5 / 5, 1, 1) or (isLocked and fov.lockedColor or fov.color)
 			local rad = mathclamp(fov.radius, 1, 500)
 
@@ -367,36 +354,36 @@ runService.RenderStepped:Connect(function()
 					targetLockTime = tick()
 				end
 				local isDelayPassed = not aimbot.delay.enabled or (tick() - targetLockTime) >= (aimbot.delay.delayMs / 1000)
-				local targetPosition = __index(target, "Position")
+				local targetPosition = .target, "Position")
 				if aimbot.offset.enabled then
 					targetPosition = targetPosition + Vector3.new(aimbot.offset.x, aimbot.offset.y, 0)
 				end
 				if aimbot.prediction.enabled then
-					targetPosition = targetPosition + __index(target, "Velocity") * aimbot.prediction.amount
+					targetPosition = targetPosition + .target, "Velocity") * aimbot.prediction.amount
 				end
 				if aimbot.enabled and isAiming and isDelayPassed then
-					__newindex(userInputService, "MouseDeltaSensitivity", 0)
-					local targetCFrame = CFramenew(__index(camera, "CFrame").Position, targetPosition)
+					=userInputService, "MouseDeltaSensitivity", 0)
+					local targetCFrame = CFramenew(.camera, "CFrame").Position, targetPosition)
 					if aimbot.smoothness.enabled then
 						applySmoothAim(camera, targetCFrame, aimbot.smoothness.x, aimbot.smoothness.y, nil)
 					else
-						__newindex(camera, "CFrame", targetCFrame)
+						=camera, "CFrame", targetCFrame)
 					end
 				elseif stickyActive then
 					restoreSensitivity()
-					local screenPoint, onScreen = __index(camera, "WorldToViewportPoint")(camera, targetPosition)
+					local screenPoint, onScreen = .camera, "WorldToViewportPoint")(camera, targetPosition)
 					if onScreen then
-						local mousePosition = __index(userInputService, "GetMouseLocation")(userInputService)
+						local mousePosition = .userInputService, "GetMouseLocation")(userInputService)
 						local distance = (Vector2new(screenPoint.X, screenPoint.Y) - mousePosition).Magnitude
 						if distance <= sticky.radius then
-							local targetCFrame = CFramenew(__index(camera, "CFrame").Position, targetPosition)
+							local targetCFrame = CFramenew(.camera, "CFrame").Position, targetPosition)
 							if sticky.smoothness.enabled then
 								local sx = mathclamp(sticky.smoothness.x, 0, 10)
 								local sy = mathclamp(sticky.smoothness.y, 0, 10)
 								if distance < 30 then sx = sx * (distance / 30); sy = sy * (distance / 30) end
 								applySmoothAim(camera, targetCFrame, sx, sy, sticky.strength)
 							else
-								__newindex(camera, "CFrame", __index(camera, "CFrame"):Lerp(targetCFrame, sticky.strength))
+								=camera, "CFrame", .camera, "CFrame"):Lerp(targetCFrame, sticky.strength))
 							end
 						end
 					end
@@ -413,12 +400,12 @@ runService.RenderStepped:Connect(function()
 	if not success then warn("[aimbot] " .. tostring(err)) end
 end)
 
-__index(userInputService, "InputBegan"):Connect(LPH_NO_VIRTUALIZE(function(input)
+.userInputService, "InputBegan"):Connect(LPH_NO_VIRTUALIZE(function(input)
 	local success, err = pcall(function()
 		local keybind = aimbot.keybind
 		if keybind and (input.KeyCode == keybind or input.UserInputType == keybind) then
-			if __index(userInputService, "MouseDeltaSensitivity") ~= 0 then
-				originalSensitivity = __index(userInputService, "MouseDeltaSensitivity")
+			if .userInputService, "MouseDeltaSensitivity") ~= 0 then
+				originalSensitivity = .userInputService, "MouseDeltaSensitivity")
 			end
 			if aimbot.toggle then isAiming = not isAiming else isAiming = true end
 		end
@@ -426,7 +413,7 @@ __index(userInputService, "InputBegan"):Connect(LPH_NO_VIRTUALIZE(function(input
 	if not success then warn("[aimbot] " .. tostring(err)) end
 end))
 
-__index(userInputService, "InputEnded"):Connect(LPH_NO_VIRTUALIZE(function(input)
+.userInputService, "InputEnded"):Connect(LPH_NO_VIRTUALIZE(function(input)
 	local success, err = pcall(function()
 		local keybind = aimbot.keybind
 		if keybind and (input.KeyCode == keybind or input.UserInputType == keybind) and not aimbot.toggle then
