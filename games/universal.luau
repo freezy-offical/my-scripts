@@ -49,8 +49,8 @@ MainGroupBox:AddToggle("AimbotToggle", {
     Callback = function(Value) aimbot.toggle = Value end
 })
 
-MainGroupBox:AddLabel("Keybind"):AddKeypicker("AimbotKeybind", {
-    Default = "MouseButton2",
+MainGroupBox:AddLabel("Keybind"):AddKeyPicker("AimbotKeybind", {
+    Default = "MB2",
     SyncToggleState = false,
     Mode = "Hold",
     Text = "Aimbot Keybind",
@@ -135,7 +135,7 @@ TriggerGroupBox:AddSlider("TriggerbotDelay", {
     Callback = function(Value) aimbot.triggerbot.delay = Value end
 })
 
-TriggerGroupBox:AddLabel("Keybind"):AddKeypicker("TriggerbotKeybind", {
+TriggerGroupBox:AddLabel("Keybind"):AddKeyPicker("TriggerbotKeybind", {
     Default = "V",
     SyncToggleState = false,
     Mode = "Hold",
@@ -301,6 +301,9 @@ ThemeManager:SetFolder("UniversalAimbot")
 SaveManager:SetFolder("UniversalAimbot/configs")
 
 SaveManager:BuildConfigSection(Tabs["UI Settings"])
+
+Tabs["UI Settings"]:AddLeftGroupbox("Menu"):AddLabel("Menu bind"):AddKeyPicker("MenuKeybind", { Default = "RightControl", NoUI = true, Text = "Menu bind", Callback = function(Value) Library.ToggleKeybind = Value end })
+
 ThemeManager:ApplyToTab(Tabs["UI Settings"])
 
 SaveManager:LoadAutoloadConfig()
