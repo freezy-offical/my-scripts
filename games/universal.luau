@@ -1,8 +1,15 @@
-local aimbot = require("../library/aimbot")
-local UI = require("../library/UI/init")
-local Library = UI.Library
-local ThemeManager = UI.ThemeManager
-local SaveManager = UI.SaveManager
+local function get(path)
+    return game:HttpGet("https://raw.githubusercontent.com/freezy-offical/my-scripts/main/" .. path)
+end
+
+local function req(path)
+    return loadstring(get(path))()
+end
+
+local aimbot = req("library/aimbot.luau")
+local Library = req("library/UI/Library.luau")
+local ThemeManager = req("library/UI/addons/ThemeManager.luau")
+local SaveManager = req("library/UI/addons/SaveManager.luau")
 
 local Window = Library:CreateWindow({
     Title = "Universal Aimbot",
